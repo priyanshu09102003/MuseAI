@@ -1,4 +1,5 @@
 import modal
+import os
 
 app = modal.App("music-generator")
 
@@ -11,6 +12,17 @@ image = (
     .add_local_python_source("prompts")
 )
 
+
+model_volume = modal.Volume.from_name("ace-step-models", create_if_missing=True)
+hf_volume = modal.Volume.from_name("qw-hf-cache", create_if_missing=True)
+
+music_gen_secrets = modal.Secret.from_name("music-gen-secrets")
+
+
+@app.function(secrets=[modal.Secret.from_name("music-gen-secrets")])
+def function_test():
+    print("hello")
+    print(os.environ["test"])
 
 
 
