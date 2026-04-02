@@ -7,7 +7,10 @@ image = (
     modal.Image.debian_slim()
     .apt_install("git")
     .pip_install_from_requirements("requirements.txt")
-    .run_commands(["git clone https://github.com/ace-step/ACE-Step.git /tmp/ACE-Step", "cd/temp/ACE-Step && pip install ."])
+    .run_commands([
+    "git clone https://github.com/ace-step/ACE-Step.git /tmp/ACE-Step",
+    "cd /tmp/ACE-Step && pip install ."
+    ])
     .env({"HF_HOME": "/.cache/huggingface"})
     .add_local_python_source("prompts")
 )
@@ -19,10 +22,17 @@ hf_volume = modal.Volume.from_name("qw-hf-cache", create_if_missing=True)
 music_gen_secrets = modal.Secret.from_name("music-gen-secrets")
 
 
-@app.function(secrets=[modal.Secret.from_name("music-gen-secrets")])
+@app.function(image=image, gpu="H100", secrets=[modal.Secret.from_name("music-gen-secrets")])
 def function_test():
     print("hello")
     print(os.environ["test"])
+
+
+
+@app.local_entrypoint()
+def main():
+    function_test.remote()
+
 
 
 
