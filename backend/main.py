@@ -1,5 +1,6 @@
 import modal
 import os
+import uuid
 
 app = modal.App("music-generator")
 
@@ -21,11 +22,57 @@ hf_volume = modal.Volume.from_name("qw-hf-cache", create_if_missing=True)
 
 music_gen_secrets = modal.Secret.from_name("music-gen-secrets")
 
+@app.cls(
+    image=image,
+    gpu="L40S",
+    volumes={"/models": model_volume, "/.cache/huggingface": hf_volume},
+    secrets=[music_gen_secrets],
+    scaledown_window=15
+)
 
-@app.function(image=image, gpu="H100", secrets=[modal.Secret.from_name("music-gen-secrets")])
-def function_test():
-    print("hello")
-    print(os.environ["test"])
+class MusicGenServer:
+    @modal.enter()
+    def load_model(self):
+        from acestep.pipeline_ace_step import ACEStepPipeline
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+        from diffusers import AutoPipelineForText2Image
+        import torch
+
+
+        #Defining the Music Generation Model
+        self.music_model = ACEStepPipeline(
+            checkpoint_dir="/models",
+            dtype="bfloat16",
+            torch_compile=False,
+            cpu_offload=False,
+            overlapped_decode=False
+        )
+
+        #Defining the Large Language Model - Hf-> Qwen/Qwen2-7B-instruct
+        model_id="Qwen/Qwen2-7B-Instruct"
+        self.tokenizer = AutoTokenizer.from_pretrained(model_id)
+        self.llm_model = AutoModelForCausalLM.from_pretrained(
+            model_id,
+            torch_dtype="auto",
+            device_map="auto",
+            cache_dir="/.cache/huggingface"
+        )
+
+        #Stable Diffusion Model - For generating music thumbnails
+        self.image_pipe = AutoPipelineForText2Image.from_pretrained("stabilityai/sdxl-turbo", torch_dtype=torch.float16, variant="fp16" , 
+        cache_dir="/.cache/huggingface")
+        self.image_pipe.to("cuda")
+
+    @modal.fastapi_endpoint(method="POST")
+    def generate(self):
+        output_dir = "/tmp/outputs"
+        os.mkdir(output_dir, exist_ok=True)
+        output_path = os.path.join(output_dir, f"{uuid.uuid4()}.wav")
+
+        self.music_model(
+            prompt="hip-hop, rap, new-york, joyful, 120BPM"
+        )
+
 
 
 
