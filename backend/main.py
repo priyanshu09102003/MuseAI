@@ -188,7 +188,7 @@ class MusicGenServer:
             audio_duration=audio_duration,
             infer_step=infer_step,
             guidance_scale=guidance_scale,
-            save_path=output_path
+            save_path=output_path,
             manual_seed=str(seed)
         )
 
@@ -256,6 +256,9 @@ class MusicGenServer:
         lyrics = ""
         if not request.instrumental:
             lyrics = self.generate_lyrics(request.full_described_song)
+        return self.generate_and_upload_to_S3(prompt=prompt, lyrics=lyrics, description_for_categorization=request.full_described_song, **request.model_dump(exclude{"full_described_song"}))
+    
+    
 
     # Endpoint to generate with lyrics
 
