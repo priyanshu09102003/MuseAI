@@ -23,6 +23,25 @@ model_volume = modal.Volume.from_name("ace-step-models", create_if_missing=True)
 hf_volume = modal.Volume.from_name("qw-hf-cache", create_if_missing=True)
 music_gen_secrets = modal.Secret.from_name("music-gen-secrets")
 
+class AudioGenerateBase(BaseModel):
+    audio_duration: float = 120.0
+    seed: int = -1
+    guidance_scale: float = 15.0
+    infer_step: int = 60
+    instrumental: bool = False
+
+class GenerateFromDescriptionRequest(AudioGenerateBase):
+    full_described_song: str
+
+class GenerateWithCustomLyricsRequest(AudioGenerateBase):
+    prompt: str
+    lyrics: str
+
+class GenerateFromDescribedLyricsRequest(AudioGenerateBase):
+    prompt: str
+    described_lyrics: str
+
+
 class GenerateMusicResponse(BaseModel):
     audio_data: str
 
@@ -95,6 +114,27 @@ class MusicGenServer:
         os.remove(output_path)
 
         return GenerateMusicResponse(audio_data=audio_b64)
+
+    
+    # Endpoint to generate from description
+    
+    @modal.fastapi_endpoint(method="POST")
+    def generate_from_description(self) -> GenerateMusicResponse:
+        
+    
+
+    # Endpoint to generate with lyrics 
+
+    @modal.fastapi_endpoint(method="POST")
+    def generate_with_lyrics(self) -> GenerateMusicResponse:
+
+    
+    # Endpoint to generate from described lyrics by the user
+
+    @modal.fastapi_endpoint(method="POST")
+    def generate__with_described_lyrics(self) -> GenerateMusicResponse:
+
+    
 
 
 @app.local_entrypoint()
