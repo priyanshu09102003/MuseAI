@@ -29,6 +29,8 @@ hf_volume = modal.Volume.from_name("qw-hf-cache", create_if_missing=True)
 music_gen_secrets = modal.Secret.from_name("music-gen-secrets")
 
 
+
+
 class AudioGenerateBase(BaseModel):
     audio_duration: float = 180.0
     seed: int = -1
@@ -221,7 +223,7 @@ class MusicGenServer:
 
    
 
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate(self) -> GenerateMusicResponse:
         output_dir = "/tmp/outputs"
         os.makedirs(output_dir, exist_ok=True)
@@ -246,7 +248,7 @@ class MusicGenServer:
 
     # Endpoint to generate from description
 
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate_from_description(self, request: GenerateFromDescriptionRequest) -> GenerateMusicResponseS3:
 
         # Generating a prompt
@@ -262,7 +264,7 @@ class MusicGenServer:
 
     # Endpoint to generate with lyrics
 
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate_with_lyrics(self, request: GenerateWithCustomLyricsRequest) -> GenerateMusicResponseS3:
         return self.generate_and_upload_to_S3(prompt=request.prompt, lyrics=request.lyrics, description_for_categorization=request.prompt, **request.model_dump(exclude={"prompt", "lyrics"}))
 
@@ -271,7 +273,7 @@ class MusicGenServer:
     
     # Endpoint to generate from described lyrics by the user
 
-    @modal.fastapi_endpoint(method="POST")
+    @modal.fastapi_endpoint(method="POST", requires_proxy_auth=True)
     def generate__with_described_lyrics(self, request: GenerateFromDescribedLyricsRequest) -> GenerateMusicResponseS3:
 
         # Generating Lyrics
@@ -293,9 +295,16 @@ def main():
         guidance_scale=15
     )
 
+
+
+    headers={
+        "Modal-Key": "wk-pOxCwOK5qX280lfmx776h4" ,
+        "Modal Secret": "ws-8aFnzW48lpn4foo3j0WmyX"
+    }
+
     payload = request_data.model_dump()
 
-    response = requests.post(endpoint_url, json = payload)
+    response = requests.post(endpoint_url, json = payload, headers=headers)
     response.raise_for_status()  
     result = GenerateMusicResponseS3(**response.json())
 
