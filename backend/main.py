@@ -7,7 +7,7 @@ from pydantic import BaseModel
 import requests
 import boto3
 
-from backend.prompts import LYRICS_GENERATOR_PROMPT, PROMPT_GENERATOR_PROMPT
+from prompts import LYRICS_GENERATOR_PROMPT, PROMPT_GENERATOR_PROMPT
 
 app = modal.App("music-generator")
 
@@ -30,7 +30,7 @@ music_gen_secrets = modal.Secret.from_name("music-gen-secrets")
 
 
 class AudioGenerateBase(BaseModel):
-    audio_duration: float = 120.0
+    audio_duration: float = 180.0
     seed: int = -1
     guidance_scale: float = 15.0
     infer_step: int = 60
@@ -264,7 +264,7 @@ class MusicGenServer:
 
     @modal.fastapi_endpoint(method="POST")
     def generate_with_lyrics(self, request: GenerateWithCustomLyricsRequest) -> GenerateMusicResponseS3:
-        return self.generate_and_upload_to_S3(prompt=request.prompt, lyrics=request.lyrics, description_for_categorization=request.prompt, **request.model_dump())
+        return self.generate_and_upload_to_S3(prompt=request.prompt, lyrics=request.lyrics, description_for_categorization=request.prompt, **request.model_dump(exclude={"prompt", "lyrics"}))
 
     
     
@@ -279,26 +279,27 @@ class MusicGenServer:
         lyrics = ""
         if not request.instrumental:
             lyrics = self.generate_lyrics(request.described_lyrics)
-        return self.generate_and_upload_to_S3(prompt=request.prompt, lyrics=lyrics, description_for_categorization=request.prompt, **request.model_dump(exclude={"described_lyrics"}))
+        return self.generate_and_upload_to_S3(prompt=request.prompt, lyrics=lyrics, description_for_categorization=request.prompt, **request.model_dump(exclude={"described_lyrics", "prompt"}))
 
 
 @app.local_entrypoint()
 def main():
     server = MusicGenServer()
-    endpoint_url = server.generate_from_description.get_web_url()
+    endpoint_url = server.generate__with_described_lyrics.get_web_url()
 
-    request_data = GenerateFromDescriptionRequest(
-        full_described_song="Acoustic Ballad",
-        guidance_scale=7.5
+    request_data = GenerateFromDescribedLyricsRequest(
+        prompt="lofi, slow",
+        described_lyrics="lyrics about love and heartbreak",
+        guidance_scale=15
     )
 
     payload = request_data.model_dump()
 
     response = requests.post(endpoint_url, json = payload)
-    response.raise_for_status()
+    response.raise_for_status()  
     result = GenerateMusicResponseS3(**response.json())
 
-    print(f"Success: {results.s3_key} {results.cover_image_s3_key} {result.categories}")
+    print(f"Success: {result.s3_key} {result.cover_image_s3_key} {result.categories}")
 
     # audio_bytes = base64.b64decode(result.audio_data)
     # with open("generated.wav", "wb") as f:
