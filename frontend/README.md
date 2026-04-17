@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
 
-## Getting Started
+# MuseAI — AI Music Studio
 
-First, run the development server:
+</div>
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
+![MuseAI](public/header-img.png)
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Overview
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+An AI-powered music creation platform that generates songs, lyrics, rhythms, covers, and artwork using multiple specialized models running on serverless GPUs via Modal. Infrastructure is secured with AWS IAM, Security Groups, and uses AWS S3 for scalable storage.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Core Models
 
-## Learn More
+### ACE-Step
+Primary music generation model used for composing melodies, beats, instrumentals, rhythms, and full song arrangements.
 
-To learn more about Next.js, take a look at the following resources:
+### Qwen2-7B-Instruct
+Language model used for lyrics generation, prompt understanding, song structure creation, multilingual text generation, and user interaction.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Hugging Face Diffusers
+Used to generate custom cover art / album images for each song based on prompts, mood, genre, or theme.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Infrastructure
 
-## Deploy on Vercel
+### Modal Serverless GPU
+Runs all AI models on-demand with scalable serverless GPU inference.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### AWS IAM + Security Groups
+Provides secure access control, permissions management, and protected networking.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### AWS S3
+Stores generated songs, cover images, model assets, and user uploads securely.
+
+---
+<div align="center">
+
+# Coming Soon
+
+</div>
