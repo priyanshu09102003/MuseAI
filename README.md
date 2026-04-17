@@ -5,7 +5,7 @@
 </div>
 
 ---
-![MuseAI](public/header-img.png)
+![MuseAI](/frontend/public/header-img.png)
 ---
 
 ## Overview
