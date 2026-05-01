@@ -4,8 +4,8 @@
 
 </div>
 
----
 ![MuseAI](/frontend/public/header-img.png)
+
 ---
 
 ## Overview
