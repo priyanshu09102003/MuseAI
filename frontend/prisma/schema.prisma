@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
+  
 }
 
 datasource db {
@@ -21,7 +22,6 @@ model User {
   songs         Song[]
   credits       Int @default(100)
 
-  @@map("user")
 }
 
 model Song {
@@ -84,7 +84,7 @@ model Session {
 
   @@unique([token])
   @@index([userId])
-  @@map("session")
+
 }
 
 model Account {
@@ -104,7 +104,7 @@ model Account {
   updatedAt             DateTime  @updatedAt
 
   @@index([userId])
-  @@map("account")
+
 }
 
 model Verification {
@@ -116,5 +116,5 @@ model Verification {
   updatedAt  DateTime @updatedAt
 
   @@index([identifier])
-  @@map("verification")
+
 }
