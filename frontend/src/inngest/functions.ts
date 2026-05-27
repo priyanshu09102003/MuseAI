@@ -5,7 +5,23 @@ import { inngest } from "./client";
 
 
 export const generateSong = inngest.createFunction(
-  { id: "generate-song", triggers: { event: "song-generation" } },
+  { id: "generate-song", concurrency:{
+    limit: 1,
+    key: "event.data.userId"
+  },
+
+  onFailure: async({event, error}) => {
+    await prisma.song.update({
+        where:{
+            id: (event?.data?.event?.data as { songId: string }).songId,
+        },
+        data: {
+          status: "failed",
+        },
+    });
+  },
+   
+  triggers: { event: "generate-song-event" } },
   async ({ event, step }) => {
     const {songId} = event.data as {
         songId: string;

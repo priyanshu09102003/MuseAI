@@ -1,3 +1,4 @@
+import CreateSong from '@/custom_components/create'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -14,6 +15,8 @@ export default async function MainPage () {
   return (
     <div>
       Dashboard
+
+      <CreateSong/>
     </div>
   )
 }
