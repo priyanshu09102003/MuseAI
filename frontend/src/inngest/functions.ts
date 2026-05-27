@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { inngest } from "./client";
 
 
+
 export const generateSong = inngest.createFunction(
   { id: "generate-song", triggers: { event: "song-generation" } },
   async ({ event, step }) => {
@@ -11,7 +12,7 @@ export const generateSong = inngest.createFunction(
         userId: string;
     };
 
-    await step.run("check-credits", async () => {
+    const {userId, credits, endpoint, body} = await step.run("check-credits", async () => {
         const song = await prisma.song.findFirstOrThrow({
             where:{
                 id: songId
@@ -47,7 +48,7 @@ export const generateSong = inngest.createFunction(
             instrumental?: boolean;
         }
         
-        let endpoint : string | undefined
+        let endpoint: string | undefined
         let body: RequestBody = {}
 
         const commomParams = {
@@ -94,6 +95,99 @@ export const generateSong = inngest.createFunction(
           endpoint: endpoint,
           body: body,
         };
-    })
+    });
+
+    if(credits>0){
+        if (!endpoint) {
+            throw new Error("No valid song generation case matched — endpoint is undefined");
+        }
+
+        await step.run("set-status-processing", async () => {
+        return await prisma.song.update({
+          where: {
+            id: songId,
+          },
+          data: {
+            status: "processing",
+          },
+        });
+      });
+
+      const response = await step.fetch(endpoint, {
+        method: "POST",
+        body: JSON.stringify(body),
+        headers: {
+          "Content-Type": "application/json",
+          "Modal-Key": process.env.MODAL_KEY ?? "",
+          "Modal-Secret": process.env.MODAL_SECRET ?? "",
+        },
+      });
+
+
+      await step.run("update-song-result", async () => {
+        const responseData = response.ok
+          ? ((await response.json()) as {
+              s3_key: string;
+              cover_image_s3_key: string;
+              categories: string[];
+            })
+          : null;
+
+        await prisma.song.update({
+          where: {
+            id: songId,
+          },
+          data: {
+            s3Key: responseData?.s3_key,
+            thumbnailS3Key: responseData?.cover_image_s3_key,
+            status: response.ok ? "processed" : "failed",
+          },
+        });
+
+        if (responseData && responseData.categories.length > 0) {
+          await prisma.song.update({
+            where: { id: songId },
+            data: {
+              categories: {
+                connectOrCreate: responseData.categories.map(
+                  (categoryName) => ({
+                    where: { name: categoryName },
+                    create: { name: categoryName },
+                  }),
+                ),
+              },
+            },
+          });
+        }
+      });
+
+      return await step.run("deduct-credits", async () => {
+        if (!response.ok) return;
+
+        return await prisma.user.update({
+          where: { id: userId },
+          data: {
+            credits: {
+              decrement: 1,
+            },
+          },
+        });
+      });
+
+    }
+
+    else{
+        //Set status: Not enough credits
+        await step.run("set-status-no-credits", async () => {
+        return await prisma.song.update({
+          where: {
+            id: songId,
+          },
+          data: {
+            status: "no credits",
+          },
+        });
+      });
+    }
   }
 );
