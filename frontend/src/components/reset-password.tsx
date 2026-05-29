@@ -1,6 +1,6 @@
 "use client"
 
-import { useAuth, useResetPassword } from "@better-auth-ui/react"
+import { useAuth, useResetPassword } from "@daveyplate/better-auth-ui"
 import { Eye, EyeOff } from "lucide-react"
 import { type SyntheticEvent, useEffect, useState } from "react"
 import { toast } from "sonner"

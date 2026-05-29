@@ -5,7 +5,7 @@ import {
   useSendVerificationEmail,
   useSignInEmail,
   useSignInSocial
-} from "@better-auth-ui/react"
+} from "@daveyplate/better-auth-ui"
 import { type SyntheticEvent, useState } from "react"
 import { toast } from "sonner"
 

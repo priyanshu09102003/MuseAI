@@ -1,35 +1,23 @@
-"use client"
+"use client";
 
-import { AuthProvider } from "@better-auth-ui/react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useTheme } from "next-themes"
-import type { ReactNode } from "react"
-
-import { authClient } from "@/lib/auth-client"
-import { Toaster } from "./ui/sonner"
+import { AuthUIProvider } from "@daveyplate/better-auth-ui";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
+import { authClient } from "@/lib/auth-client";
 
 export function Providers({ children }: { children: ReactNode }) {
-  const router = useRouter()
-  const { theme, setTheme } = useTheme()
+  const router = useRouter();
 
   return (
-    <AuthProvider
+    <AuthUIProvider
       authClient={authClient}
-      appearance={{ theme, setTheme }}
-      deleteUser={{ enabled: true }}
-      magicLink
-      multiSession
-      redirectTo="/"
-      socialProviders={["google", "github"]}
-      navigate={({ to, replace }) =>
-        replace ? router.replace(to) : router.push(to)
-      }
+      navigate={(url) => router.push(url)}
+      replace={(url) => router.replace(url)}
+      onSessionChange={() => router.refresh()}
       Link={Link}
     >
       {children}
-
-      <Toaster />
-    </AuthProvider>
-  )
+    </AuthUIProvider>
+  );
 }

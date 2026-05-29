@@ -1,25 +1,23 @@
-import { viewPaths } from "@better-auth-ui/react/core"
-import { notFound } from "next/navigation"
+// app/auth/[pathname]/page.tsx
+import { authViewPaths } from "@daveyplate/better-auth-ui/server";
 
-import { Auth } from "@/components/auth"
 import { MusicAuthShell } from "@/components/auth-shell"
+import { AuthCard } from "@/components/auth";
+
+export function generateStaticParams() {
+  return Object.values(authViewPaths).map((pathname) => ({ pathname }));
+}
 
 export default async function AuthPage({
   params,
 }: {
-  params: Promise<{
-    pathname: string
-  }>
+  params: Promise<{ pathname: string }>;
 }) {
-  const { pathname } = await params
-
-  if (!Object.values(viewPaths.auth).includes(pathname)) {
-    notFound()
-  }
+  const { pathname } = await params;
 
   return (
     <MusicAuthShell>
-      <Auth path={pathname} />
+      <AuthCard pathname={pathname} />
     </MusicAuthShell>
-  )
+  );
 }

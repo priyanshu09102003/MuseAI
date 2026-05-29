@@ -108,7 +108,7 @@ export function MusicAuthShell({ children }: { children: React.ReactNode }) {
             <div>
               <span className="text-white font-bold text-xl tracking-tight">MuseAI</span>
               <div className="text-[10px] tracking-[0.2em] uppercase" style={{ color: "#a855f7" }}>
-                Music Studio
+                AI Music Studio
               </div>
             </div>
           </div>
@@ -228,7 +228,7 @@ export function MusicAuthShell({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* Bottom */}
-          <div className="relative z-10 flex items-center gap-2" style={{ color: "rgba(234, 228, 228, 0.6)", fontSize: "12px" }}>
+          <div className="relative mt-4 z-10 flex items-center gap-2" style={{ color: "rgba(234, 228, 228, 0.6)", fontSize: "12px" }}>
             <Radio className="w-3 h-3" />
             <span>Now streaming: Your next favourite track</span>
           </div>

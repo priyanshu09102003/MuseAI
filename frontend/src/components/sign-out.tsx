@@ -1,6 +1,6 @@
 "use client"
 
-import { useAuth, useSignOut } from "@better-auth-ui/react"
+import { useAuth, useSignOut } from "@daveyplate/better-auth-ui"
 import { useEffect, useRef } from "react"
 import { toast } from "sonner"
 

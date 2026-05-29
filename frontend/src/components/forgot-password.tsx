@@ -1,6 +1,6 @@
 "use client"
 
-import { useAuth, useRequestPasswordReset } from "@better-auth-ui/react"
+import { useAuth, useRequestPasswordReset } from "@daveyplate/better-auth-ui"
 import { type SyntheticEvent, useState } from "react"
 import { toast } from "sonner"
 

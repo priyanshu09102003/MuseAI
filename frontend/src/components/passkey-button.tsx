@@ -1,6 +1,6 @@
 "use client"
 
-import { useAuth, useSignInPasskey } from "@better-auth-ui/react"
+import { useAuth, useSignInPasskey } from "@daveyplate/better-auth-ui"
 import { Fingerprint } from "lucide-react"
 import { toast } from "sonner"
 
