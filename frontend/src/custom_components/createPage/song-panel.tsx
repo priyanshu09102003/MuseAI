@@ -1,11 +1,13 @@
 "use client";
 
+import { GenerateRequest, generateSong } from "@/actions/generation";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Hash, Music2Icon, Plus, X } from "lucide-react";
+import { Hash, Loader2Icon, Music2Icon, Plus, X } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const inspirationTags = [
   "80s synth-pop",
@@ -58,6 +60,7 @@ export function SongPanel(){
     const [lyricsMode, setLyricsMode] = useState<"write"|"auto">("write");
     const [lyrics, setLyrics] = useState("")
     const [styleInput, setStyleInput] = useState("")
+    const [loading, setLoading] = useState(false);
 
     const handleInspirationTagClick = (tag: string) => {
         const currentTags = description
@@ -95,6 +98,65 @@ export function SongPanel(){
                 setStyleInput(styleInput + ", " + tag);
             }
         }
+    };
+
+    const handleCreate = async() => {
+        if(mode === 'simple' && !description.trim()){
+            toast.error("Please describe your song before creating.")
+            return
+        }
+
+        if(mode === 'custom' && !styleInput.trim()){
+            toast.error("Please add your preferred song style.")
+            return
+        }
+
+        
+        //Generate song
+
+        let requestBody : GenerateRequest;
+
+        if(mode === "simple"){
+            requestBody = {
+                fullDescribedSong: description,
+                instrumental
+            };
+        }
+
+        else{
+            const prompt = styleInput;
+            if(lyricsMode == "write"){
+                requestBody= {
+                    prompt,
+                    lyrics,
+                    instrumental
+                }
+            }
+            else{
+                requestBody ={
+                    prompt,
+                    describedLyrics: lyrics,
+                    instrumental
+                };
+            }
+        }
+
+        try {
+
+            setLoading(true);
+            await generateSong(requestBody);
+            setDescription("");
+            setLyrics("");
+            setStyleInput("");
+            
+        } catch (error) {
+
+            toast.error("Failed to generate song");
+
+        }finally{
+            setLoading(false)
+        }
+        
     };
 
    return (
@@ -258,11 +320,15 @@ export function SongPanel(){
 
         <div className="border-t p-4">
             <Button 
+                onClick={handleCreate}
+                disabled = {loading}
                 className="w-full cursor-pointer bg-gradient-to-r from-violet-600 to-pink-600 hover:from-violet-700 hover:to-pink-700 text-white font-semibold shadow-lg shadow-violet-900/30 transition-all"
                 size="lg"
-            >
-                <Music2Icon className="mr-2 h-4 w-4" />
-                Create Song
+            >   
+
+                {loading ? <Loader2Icon className="mr-2 h-4 w-4 animate-spin" /> : <Music2Icon className="mr-2 h-4 w-4" />}
+                {loading ? "Creating ..." : "Create Song"}
+                
             </Button>
         </div>
     </div>
