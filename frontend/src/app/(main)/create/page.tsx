@@ -1,4 +1,5 @@
 import CreateSong from '@/custom_components/create'
+import { SongPanel } from '@/custom_components/createPage/song-panel'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -13,9 +14,8 @@ export default async function MainPage () {
     redirect("/auth/sign-in")
   }
   return (
-    <div>
-      Dashboard
-
+    <div className='flex h-full flex-col lg:flex-row overflow-hidden'>
+        <SongPanel />
     </div>
   )
 }

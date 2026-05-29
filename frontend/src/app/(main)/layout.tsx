@@ -11,7 +11,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from '@/co
 import BreadcrumbPageClient from '@/custom_components/sidebar/breadcrumb-page-client';
 
 export const metadata: Metadata = {
-  title: "MuseAI | Home",
+  title: "MuseAI - AI Music Studio",
   description: "Music Generator",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
@@ -45,7 +45,7 @@ export default function RootLayout({
                             </Breadcrumb>
                           </div>
                         </header>
-                        <main className='flex-1 overflow-y-auto'>
+                        <main className='flex-1 h-full overflow-hidden'>
                           {children}
                         </main>
                       </SidebarInset>
