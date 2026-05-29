@@ -160,7 +160,7 @@ export function SongPanel(){
     };
 
    return (
-    <div className="bg-muted/20 flex w-full flex-col border-r lg:w-80 h-full overflow-hidden min-w-0">
+    <div className="bg-muted/30 flex w-full flex-col border-r lg:w-80">
         
         <Tabs value={mode} onValueChange={(value) => setMode(value as "simple" | "custom")} className="flex flex-col h-full">
             <div className="p-4 pb-0">

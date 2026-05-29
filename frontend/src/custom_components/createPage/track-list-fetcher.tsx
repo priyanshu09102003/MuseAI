@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { TracksList } from "./tracks-list";
 
 export default async function TrackListFetcher(){
 
@@ -31,7 +32,7 @@ export default async function TrackListFetcher(){
     const songsWithThumbnails = await Promise.all(
     songs.map(async (song) => {
       const thumbnailUrl = song.thumbnailS3Key
-        ? getPresignedUrl(song.thumbnailS3Key)
+        ? await getPresignedUrl(song.thumbnailS3Key)
         : null;
 
       return {
@@ -54,9 +55,7 @@ export default async function TrackListFetcher(){
 
     return(
 
-        <p>
-            Song Loaded
-        </p>
+        <TracksList tracks={songsWithThumbnails} />
 
     )
 }
