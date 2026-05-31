@@ -1,9 +1,21 @@
 "use client"
 
 import { getPlayUrl } from "@/actions/generation";
+import { setPublishedStatus } from "@/actions/song";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+
 import { Input } from "@/components/ui/input";
-import { Loader2, Music, RefreshCcw, Search, XCircle } from "lucide-react";
+import { DownloadIcon, Loader2, MoreHorizontalIcon, Music, Play, RefreshCcw, Search, XCircle } from "lucide-react";
 import { useState } from "react";
 
 
@@ -32,7 +44,9 @@ export function TracksList({tracks}: {tracks: Track[]}){
         if(loadingTrackId) return;
         setLoadingTrackId(track.id)
 
-        const playUrl = await getPlayUrl(track.id)
+        const playUrl = await getPlayUrl(track.id);
+
+        setLoadingTrackId(null);
     }
 
     const filteredTracks = tracks.filter(
@@ -157,10 +171,67 @@ export function TracksList({tracks}: {tracks: Track[]}){
                                                     )
                                                 }
 
+                                                <div className="cursor-pointer absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 transition-opacity group-hover:opacity-100">
+                                                    {loadingTrackId === track.id ? (
+                                                        <Loader2 className="animate-spin text-white" />
+                                                    ) : (
+                                                        <Play className="fill-white text-white" />
+                                                    )}
+                                                </div>
+
                                             </div>
-                                            
 
+                                            {/* Track info */}
+                                            <div className="min-w-0 flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <h3 className="trucate text-sm font-medium">{track.title}</h3>
 
+                                                    {track.instrumental && (
+                                                        <Badge variant="secondary">Instrumental</Badge>
+                                                    )}
+                                                </div>
+
+                                                <p className="text-muted-foreground truncate text-xs">
+                                                    {track.prompt}
+                                                </p>
+                                            </div>
+
+                                            {/* ACTIONS */}
+
+                                            <div className="flex items-center gap-2">
+
+                                                <Button variant="secondary" size={"sm"}
+                                                onClick={async (e) => {
+                                                    e.stopPropagation();
+                                                    await setPublishedStatus(
+                                                    track.id,
+                                                    !track.published,
+                                                    );
+                                                }}
+                                                className="cursor-pointer"
+                                                >
+                                                    {track.published ? "Unpublish" : "Publish"}
+                                                </Button>
+
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger>
+
+                                                        <Button variant="outline" size="icon" className="cursor-pointer hover:bg-white hover:text-black transition-all">
+                                                            <MoreHorizontalIcon />
+                                                        </Button>
+
+                                                    </DropdownMenuTrigger>
+
+                                                    <DropdownMenuContent align="end" className="w-45">
+
+                                                        <DropdownMenuItem>
+                                                            <DownloadIcon className="mr-2" /> Download Track
+                                                        </DropdownMenuItem>
+
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+
+                                            </div>
                                         </div>
                                     )
                             }

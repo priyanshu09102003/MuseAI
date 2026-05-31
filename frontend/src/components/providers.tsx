@@ -14,8 +14,12 @@ export function Providers({ children }: { children: ReactNode }) {
       authClient={authClient}
       navigate={(url) => router.push(url)}
       replace={(url) => router.replace(url)}
-      onSessionChange={() => router.refresh()}
+      onSessionChange={() => {
+          router.push("/");
+          router.refresh();
+      }}
       Link={Link}
+      redirectTo="/" 
     >
       {children}
     </AuthUIProvider>

@@ -45,7 +45,7 @@ export default function RootLayout({
                             </Breadcrumb>
                           </div>
                         </header>
-                        <main className='flex-1 h-full overflow-hidden'>
+                        <main className='flex-1 overflow-y-auto'>
                           {children}
                         </main>
                       </SidebarInset>
