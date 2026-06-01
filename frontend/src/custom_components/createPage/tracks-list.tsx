@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { RenameDialog } from "./rename-dialog";
+import { useRouter } from "next/navigation";
 
 export interface Track {
   id: string;
@@ -46,9 +47,16 @@ export function TracksList({ tracks }: { tracks: Track[] }) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [loadingTrackId, setLoadingTrackId] = useState<string | null>(null);
   const [trackToRename, setTrackToRename] = useState<Track | null>(null);
+  const router = useRouter();
 
   
   const [localTracks, setLocalTracks] = useState<Track[]>(tracks);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    router.refresh();
+    setTimeout(() => setIsRefreshing(false), 1000);
+  };
 
   const handleTrackSelect = async (track: Track) => {
     if (loadingTrackId) return;
@@ -91,6 +99,7 @@ export function TracksList({ tracks }: { tracks: Track[] }) {
             variant="outline"
             size="sm"
             className="cursor-pointer font-semibold"
+            onClick={handleRefresh}
           >
             {isRefreshing ? (
               <Loader2 className="mr-2 animate-spin" />
@@ -103,7 +112,7 @@ export function TracksList({ tracks }: { tracks: Track[] }) {
 
         {/* Track list */}
         <div className="space-y-2">
-          {filteredTracks.length > 0 &&
+          {filteredTracks.length > 0 ? (
             filteredTracks.map((track) => {
               switch (track.status) {
                 case "failed":
@@ -132,7 +141,7 @@ export function TracksList({ tracks }: { tracks: Track[] }) {
                       key={track.id}
                       className="flex cursor-not-allowed items-center gap-4 rounded-lg p-3"
                     >
-                      <div className="bg-destructive/10 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md">
+                      <div className="bg-destructive/10 flex h-12 w-12 shrink-0 items-center justify-center rounded-md">
                         <XCircle className="text-destructive h-6 w-6" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -153,7 +162,7 @@ export function TracksList({ tracks }: { tracks: Track[] }) {
                       key={track.id}
                       className="flex cursor-not-allowed items-center gap-4 rounded-lg p-3"
                     >
-                      <div className="bg-muted flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md">
+                      <div className="bg-muted flex h-12 w-12 shrink-0 items-center justify-center rounded-md">
                         <Loader2 className="text-muted-foreground h-6 w-6 animate-spin" />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -264,7 +273,17 @@ export function TracksList({ tracks }: { tracks: Track[] }) {
                     </div>
                   );
               }
-            })}
+            })):(
+              <div className="flex flex-col items-center justify-center pt-20 text-center">
+                  <Music className="text-muted-foreground h-10 w-10" />
+                  <h2 className="mt-4 text-lg font-semibold">No creations yet</h2>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    {searchQuery
+                    ? "No tracks match your search."
+                    : "Create your first song to get started."}
+                  </p>
+              </div>
+            )}
         </div>
       </div>
 
