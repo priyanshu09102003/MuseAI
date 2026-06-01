@@ -25,6 +25,7 @@ import {
 import { useState } from "react";
 import { RenameDialog } from "./rename-dialog";
 import { useRouter } from "next/navigation";
+import { usePlayerStore } from "@/stores/use-player";
 
 export interface Track {
   id: string;
@@ -48,7 +49,7 @@ export function TracksList({ tracks }: { tracks: Track[] }) {
   const [loadingTrackId, setLoadingTrackId] = useState<string | null>(null);
   const [trackToRename, setTrackToRename] = useState<Track | null>(null);
   const router = useRouter();
-
+  const setTrack = usePlayerStore((state) => state.setTrack)
   
   const [localTracks, setLocalTracks] = useState<Track[]>(tracks);
 
@@ -63,6 +64,15 @@ export function TracksList({ tracks }: { tracks: Track[] }) {
     setLoadingTrackId(track.id);
     const playUrl = await getPlayUrl(track.id);
     setLoadingTrackId(null);
+
+    setTrack({
+      id: track.id,
+      title: track.title,
+      url: playUrl,
+      artwork: track.thumbnailUrl,
+      prompt: track.prompt,
+      createdByUserName: track.createdByUserName
+    })
   };
 
   

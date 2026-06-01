@@ -9,6 +9,7 @@ import { AppSidebar } from '@/custom_components/sidebar/app-sidebar';
 import { Separator } from '@/components/ui/separator';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList } from '@/components/ui/breadcrumb';
 import BreadcrumbPageClient from '@/custom_components/sidebar/breadcrumb-page-client';
+import Seekbar from '@/custom_components/soundbar/seekbar';
 
 export const metadata: Metadata = {
   title: "MuseAI - AI Music Studio",
@@ -48,6 +49,8 @@ export default function RootLayout({
                         <main className='flex-1 overflow-y-auto'>
                           {children}
                         </main>
+
+                        <Seekbar />
                       </SidebarInset>
                   </SidebarProvider>
 
