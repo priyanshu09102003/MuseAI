@@ -2,13 +2,58 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Slider } from "@/components/ui/slider";
 import { usePlayerStore } from "@/stores/use-player"
-import { Music, Pause, Play, Volume2Icon } from "lucide-react";
-import { useState } from "react";
+import { Download, MoreHorizontal, Music, Pause, Play, Volume2Icon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 export default function Seekbar(){
     const { track } = usePlayerStore();
     const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [volume, setVolume] = useState<number[]>([100])
+    const [duration, setDuration] = useState(0);
+
+    const audioRef = useRef<HTMLAudioElement>(null);
+
+    useEffect(() => {
+    if (audioRef.current && track?.url) {
+            setCurrentTime(0);
+            setDuration(0);
+
+            audioRef.current.src = track.url;
+            audioRef.current.load();
+
+            const playPromise = audioRef.current.play();
+            if (playPromise !== undefined) {
+                playPromise
+                .then(() => {
+                    setIsPlaying(true);
+                })
+                .catch((error) => {
+                    console.error("Playback failed: ", error);
+                    setIsPlaying(false);
+                });
+            }
+        }
+    }, [track]);
+
+
+    const handleSeek = (value: number | readonly number[]) => {
+
+    };
+
+    
+
+    const formatTime = (time: number) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = Math.floor(time % 60);
+        return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    };
+
+
+    if (!track) return null; 
     return(
 
         <div className="px-4 pb-2">
@@ -55,12 +100,50 @@ export default function Seekbar(){
                             <div className="flex items-center gap-2">
 
                                 <Volume2Icon className="h-4 w-4" />
+                                <Slider value={volume} onValueChange={(val) => setVolume(val as number[])}  step={1} min={0} max={100} className="w-24" />
                             </div>
+
+                            <DropdownMenu>
+                                <DropdownMenuTrigger>
+
+                                    <Button variant="ghost" size="icon" className="cursor-pointer">
+                                        <MoreHorizontal className="h-4 w-4"/> 
+                                    </Button>
+                                    
+                                </DropdownMenuTrigger>
+
+                                <DropdownMenuContent align="end" className="w-40">
+                                    <DropdownMenuItem
+                                        onClick={() => {
+                                        if (!track?.url) return;
+
+                                        window.open(track?.url, "_blank");
+                                        }}
+                                    >
+                                        <Download className="mr-2 h-4 w-4" />
+                                        Download
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
                         </div>
 
                     </div>
 
+                    {/* Full progress bar for the song */}
+
+                    <div className="flex items-center gap-1">
+                        <span className="text-muted-foreground w-8 text-right text-[10px]">
+                            {formatTime(currentTime)}
+                        </span>
+
+                        <Slider className="flex-1" value={[currentTime]} max={duration || 100} step={1} onValueChange={handleSeek}/>
+
+                    </div>
+
                 </div>
+
+
+                <audio ref={audioRef } src={track.url ?? ""} preload="metadata" />
 
             </Card>
 
