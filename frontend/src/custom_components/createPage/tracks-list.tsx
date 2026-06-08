@@ -236,10 +236,16 @@ export function TracksList({ tracks }: { tracks: Track[] }) {
                           variant="secondary"
                           size="sm"
                           className="cursor-pointer"
-                          onClick={async (e) => {
+                         onClick={async (e) => {
                             e.stopPropagation();
-                            await setPublishedStatus(track.id, !track.published);
-                          }}
+                            const newStatus = !track.published;
+                            setLocalTracks((prev) =>
+                                prev.map((t) =>
+                                    t.id === track.id ? { ...t, published: newStatus } : t
+                                )
+                            );
+                            await setPublishedStatus(track.id, newStatus);
+                        }}
                         >
                           {track.published ? "Unpublish" : "Publish"}
                         </Button>
