@@ -39,9 +39,23 @@ export default function Seekbar(){
         }
     }, [track]);
 
+    const togglePlay = ()  => {
+        if(!track?.url || !audioRef.current)return;
+
+        if(isPlaying){
+            audioRef.current.pause()
+            setIsPlaying(false)
+        }
+
+        else{
+            audioRef.current.play()
+            setIsPlaying(true)
+        }
+    }
+
 
     const handleSeek = (value: number | readonly number[]) => {
-
+        
     };
 
     
@@ -83,7 +97,7 @@ export default function Seekbar(){
 
                         <div className="absolute left-1/2 -translate-x-1/2">
 
-                                <Button variant="ghost" className="cursor-pointer" size="icon">
+                                <Button variant="ghost" className="cursor-pointer" size="icon" onClick={togglePlay}>
 
                                      {isPlaying ? (
                                         <Pause className="h-4 w-4" />
@@ -143,7 +157,9 @@ export default function Seekbar(){
                 </div>
 
 
-                <audio ref={audioRef } src={track.url ?? ""} preload="metadata" />
+                {track?.url && (
+                    <audio ref={audioRef} src={track.url} preload="metadata" />
+                )}
 
             </Card>
 
