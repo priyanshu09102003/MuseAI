@@ -5,15 +5,17 @@ import { Card } from "@/components/ui/card";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { usePlayerStore } from "@/stores/use-player"
-import { Download, MoreHorizontal, Music, Pause, Play, Volume2Icon } from "lucide-react";
+import { Download, MoreHorizontal, Music, Pause, Play, Volume2Icon, VolumeX } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 export default function Seekbar(){
     const { track } = usePlayerStore();
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
-    const [volume, setVolume] = useState<number[]>([100])
+    const [volume, setVolume] = useState(100)
     const [duration, setDuration] = useState(0);
+    const [isMuted, setIsMuted] = useState(false);
+    const [prevVolume, setPrevVolume] = useState(100);
 
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -39,6 +41,7 @@ export default function Seekbar(){
         }
     }, [track]);
 
+
     const togglePlay = ()  => {
         if(!track?.url || !audioRef.current)return;
 
@@ -52,6 +55,20 @@ export default function Seekbar(){
             setIsPlaying(true)
         }
     }
+
+    const toggleMute = () => {
+    if (!audioRef.current) return;
+    if (isMuted) {
+        audioRef.current.volume = prevVolume / 100;
+        setVolume(prevVolume);
+        setIsMuted(false);
+    } else {
+        setPrevVolume(volume);
+        audioRef.current.volume = 0;
+        setVolume(0);
+        setIsMuted(true);
+    }
+};
 
     const handleSeek = (value: number | readonly number[]) => {
         const val = Array.isArray(value) ? value[0] : value;
@@ -115,8 +132,25 @@ export default function Seekbar(){
                         <div className="flex items-center gap-1">
                             <div className="flex items-center gap-2">
 
-                                <Volume2Icon className="h-4 w-4" />
-                                <Slider value={volume} onValueChange={(val) => setVolume(val as number[])}  step={1} min={0} max={100} className="w-24" />
+                                <button onClick={toggleMute} className="cursor-pointer">
+                                    {isMuted || volume === 0 
+                                        ? <VolumeX className="h-4 w-4" /> 
+                                        : <Volume2Icon className="h-4 w-4" />
+                                    }
+                                </button>
+                               <input
+                                type="range"
+                                min={0}
+                                max={100}
+                                step={1}
+                                value={volume}
+                                onChange={(e) => {
+                                    const v = Number(e.target.value);
+                                    setVolume(v);
+                                    if (audioRef.current) audioRef.current.volume = v / 100;
+                                }}
+                                className="w-20 accent-white cursor-pointer"
+                            />
                             </div>
 
                             <DropdownMenu>
@@ -169,7 +203,7 @@ export default function Seekbar(){
                         preload="metadata"
                         onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime ?? 0)}
                         onLoadedMetadata={() => setDuration(audioRef.current?.duration ?? 0)}
-                        onEnded={() => setIsPlaying(false)}
+                        onEnded={() => { setIsPlaying(false); setCurrentTime(0); }}
                     />
                 )}
 
