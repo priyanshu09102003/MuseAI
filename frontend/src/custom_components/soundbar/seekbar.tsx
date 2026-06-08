@@ -53,11 +53,13 @@ export default function Seekbar(){
         }
     }
 
-
     const handleSeek = (value: number | readonly number[]) => {
-        
+        const val = Array.isArray(value) ? value[0] : value;
+        if (audioRef.current && val !== undefined) {
+            audioRef.current.currentTime = val;
+            setCurrentTime(val);
+        }
     };
-
     
 
     const formatTime = (time: number) => {
@@ -152,13 +154,23 @@ export default function Seekbar(){
 
                         <Slider className="flex-1" value={[currentTime]} max={duration || 100} step={1} onValueChange={handleSeek}/>
 
+                        <span className="text-muted-foreground w-8 text-left text-[10px]">
+                            {formatTime(duration)}
+                        </span>
+
                     </div>
 
                 </div>
 
 
                 {track?.url && (
-                    <audio ref={audioRef} src={track.url} preload="metadata" />
+                    <audio
+                        ref={audioRef}
+                        preload="metadata"
+                        onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime ?? 0)}
+                        onLoadedMetadata={() => setDuration(audioRef.current?.duration ?? 0)}
+                        onEnded={() => setIsPlaying(false)}
+                    />
                 )}
 
             </Card>
