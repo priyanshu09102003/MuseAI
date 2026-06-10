@@ -100,6 +100,18 @@ export async function deletePlaylist(playlistId: string) {
   revalidatePath("/");
 }
 
+export async function renamePlaylist(playlistId: string, name: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) redirect("/auth/sign-in");
+
+  await prisma.playlist.update({
+    where: { id: playlistId, userId: session.user.id },
+    data: { name },
+  });
+
+  revalidatePath("/");
+}
+
 export async function getLikedSongsPlaylist() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/auth/sign-in");

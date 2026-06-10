@@ -203,7 +203,15 @@ export default function Seekbar(){
                         preload="metadata"
                         onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime ?? 0)}
                         onLoadedMetadata={() => setDuration(audioRef.current?.duration ?? 0)}
-                        onEnded={() => { setIsPlaying(false); setCurrentTime(0); }}
+                        onEnded={() => {
+                        const { queue, queueIndex, playNext } = usePlayerStore.getState();
+                        if (queueIndex < queue.length - 1) {
+                            playNext();
+                        } else {
+                            setIsPlaying(false);
+                            setCurrentTime(0);
+                        }
+                        }}
                     />
                 )}
 

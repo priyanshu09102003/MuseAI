@@ -49,36 +49,36 @@ export async function renameSong(songId: string, newTitle: string) {
 }
 
 export async function toggleLikeSong(songId: string) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
+  const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/auth/sign-in");
 
   const existingLike = await prisma.like.findUnique({
-    where: {
-      userId_songId: {
-        userId: session.user.id,
-        songId,
-      },
-    },
+    where: { userId_songId: { userId: session.user.id, songId } },
   });
+
+  // find or create Liked Songs playlist
+  let likedPlaylist = await prisma.playlist.findFirst({
+    where: { userId: session.user.id, name: "Liked Songs" },
+  });
+  if (!likedPlaylist) {
+    likedPlaylist = await prisma.playlist.create({
+      data: { name: "Liked Songs", userId: session.user.id },
+    });
+  }
 
   if (existingLike) {
     await prisma.like.delete({
-      where: {
-        userId_songId: {
-          userId: session.user.id,
-          songId,
-        },
-      },
+      where: { userId_songId: { userId: session.user.id, songId } },
+    });
+    await prisma.playlistSong.deleteMany({
+      where: { playlistId: likedPlaylist.id, songId },
     });
   } else {
-    await prisma.like.create({
-      data: {
-        userId: session.user.id,
-        songId,
-      },
+    await prisma.like.create({ data: { userId: session.user.id, songId } });
+    await prisma.playlistSong.upsert({
+      where: { playlistId_songId: { playlistId: likedPlaylist.id, songId } },
+      update: {},
+      create: { playlistId: likedPlaylist.id, songId },
     });
   }
 

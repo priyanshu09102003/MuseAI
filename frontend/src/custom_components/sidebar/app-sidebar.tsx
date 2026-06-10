@@ -13,6 +13,7 @@ import { Credits } from "./credits";
 import { UserButton } from "@daveyplate/better-auth-ui";
 import { User } from "lucide-react";
 import Upgrade from "./upgrade";
+import { SidebarPlaylists } from "../playlist/sidebar-playlists";
 
 
 export async function AppSidebar() {
@@ -66,6 +67,7 @@ export async function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="gap-3.5">
               <SidebarMenuItems />
+              <SidebarPlaylists />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
