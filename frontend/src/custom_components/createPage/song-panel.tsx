@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Hash, Loader2Icon, Music2Icon, Plus, X } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 const inspirationTags = [
@@ -61,6 +62,7 @@ export function SongPanel(){
     const [lyrics, setLyrics] = useState("")
     const [styleInput, setStyleInput] = useState("")
     const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
     const handleInspirationTagClick = (tag: string) => {
         const currentTags = description
@@ -145,6 +147,7 @@ export function SongPanel(){
 
             setLoading(true);
             await generateSong(requestBody);
+            router.refresh();
             setDescription("");
             setLyrics("");
             setStyleInput("");

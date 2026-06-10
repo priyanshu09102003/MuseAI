@@ -22,7 +22,7 @@ import {
   Search,
   XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RenameDialog } from "./rename-dialog";
 import { useRouter } from "next/navigation";
 import { usePlayerStore } from "@/stores/use-player";
@@ -53,6 +53,25 @@ export function TracksList({ tracks }: { tracks: Track[] }) {
   
   const [localTracks, setLocalTracks] = useState<Track[]>(tracks);
 
+  // Sync localTracks when server re-fetches (router.refresh triggers new props)
+  useEffect(() => {
+    setLocalTracks(tracks);
+  }, [tracks]);
+
+  // Poll every 3s while any track is queued or processing
+  useEffect(() => {
+    const hasPending = localTracks.some(
+      (t) => t.status === "queued" || t.status === "processing"
+    );
+    if (!hasPending) return;
+
+    const interval = setInterval(() => {
+      router.refresh();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [localTracks, router]);
+
   const handleRefresh = async () => {
     setIsRefreshing(true);
     router.refresh();
@@ -75,7 +94,6 @@ export function TracksList({ tracks }: { tracks: Track[] }) {
     })
   };
 
-  
   const handleRename = async (trackId: string, newTitle: string) => {
     setLocalTracks((prev) =>
       prev.map((t) => (t.id === trackId ? { ...t, title: newTitle } : t))
